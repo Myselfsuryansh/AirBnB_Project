@@ -8,9 +8,11 @@ import org.springframework.stereotype.Service;
 
 import com.codingshuttle.projects.airBnbApp.dto.HotelDto;
 import com.codingshuttle.projects.airBnbApp.entity.Hotel;
+import com.codingshuttle.projects.airBnbApp.entity.Room;
 import com.codingshuttle.projects.airBnbApp.exception.ResourceNotFoundException;
 import com.codingshuttle.projects.airBnbApp.repository.HotelRepository;
 
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -20,6 +22,7 @@ import lombok.extern.slf4j.Slf4j;
 public class HotelService implements IHotelService {
 
     private final HotelRepository hotelRepository;
+    private final InventoryService inventoryService;
     private final ModelMapper modelMapper;
 
     @Override
@@ -65,20 +68,30 @@ public class HotelService implements IHotelService {
     }
 
     @Override
+    @Transactional
     public void deleteHotelById(Long id) {
-        boolean isExits = isExitsByHotelId(id);
-        if (!isExits) {
-            throw new ResourceNotFoundException("Hotel Not Found with Id :" + id);
-        }
+        Hotel hotel = hotelRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Hotel not found with Id" + id));
         hotelRepository.deleteById(id);
         // ToDo: delete the future inventories for the Hotel
+        for (Room room : hotel.getRooms()) {
+            inventoryService.deleteFutureInventories(room);
+        }
+
     }
 
-     @Override
+    @Override
+    @Transactional
     public void activateHotel(Long hotelId) {
         log.info("Activating the Hotel with the Id:{} :", +hotelId);
-        Hotel hotel = hotelRepository.findById(hotelId).orElseThrow(() -> new ResourceNotFoundException("Hotel not found with Id" + hotelId));
+        Hotel hotel = hotelRepository.findById(hotelId)
+                .orElseThrow(() -> new ResourceNotFoundException("Hotel not found with Id" + hotelId));
         hotel.setActive(true);
+        // Assuming get it only once inventories for the Hotel:
+
+        for (Room room : hotel.getRooms()) {
+            inventoryService.initializeRoomForAYear(room);
+        }
     }
 
     public boolean isExitsByHotelId(Long id) {
@@ -88,7 +101,5 @@ public class HotelService implements IHotelService {
         }
         return true;
     }
-
-   
 
 }
