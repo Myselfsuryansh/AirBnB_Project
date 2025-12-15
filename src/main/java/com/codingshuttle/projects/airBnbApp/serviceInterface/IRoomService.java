@@ -1,4 +1,4 @@
-package com.codingshuttle.projects.airBnbApp.service;
+package com.codingshuttle.projects.airBnbApp.serviceInterface;
 
 import java.util.List;
 

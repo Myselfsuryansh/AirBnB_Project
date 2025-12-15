@@ -12,6 +12,7 @@ import com.codingshuttle.projects.airBnbApp.entity.Room;
 import com.codingshuttle.projects.airBnbApp.exception.ResourceNotFoundException;
 import com.codingshuttle.projects.airBnbApp.repository.HotelRepository;
 import com.codingshuttle.projects.airBnbApp.repository.RoomRepository;
+import com.codingshuttle.projects.airBnbApp.serviceInterface.IRoomService;
 
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -65,7 +66,7 @@ public class RoomService implements IRoomService {
         log.info("Deleting the room by id:" +id);
        Room room = roomRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Hotel not found with Id" + id));
-        inventoryService.deleteFutureInventories(room);
+        inventoryService.deleteAllInventories(room);
         roomRepository.deleteById(id);
     }
 
