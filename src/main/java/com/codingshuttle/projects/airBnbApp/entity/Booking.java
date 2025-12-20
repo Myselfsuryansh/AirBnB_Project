@@ -1,5 +1,6 @@
 package com.codingshuttle.projects.airBnbApp.entity;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Set;
@@ -22,6 +23,7 @@ import jakarta.persistence.JoinTable;
 import jakarta.persistence.ManyToMany;
 import jakarta.persistence.ManyToOne;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -29,6 +31,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
+@Builder
 public class Booking {
 
     @Id
@@ -71,5 +74,7 @@ public class Booking {
     @JoinTable(name = "booking_guest", joinColumns = @JoinColumn(name = "booking_id"), inverseJoinColumns = @JoinColumn(name = "guest_id"))
     
     private Set<Guest> guests;
+
+    private BigDecimal amount;
 
 }
